@@ -158,9 +158,7 @@ be sent out.
 A client adds the PRIVACY EDNS0 option to a recursive query before
 sending it. A client SHOULD NOT add the PRIVACY option to recursive
 queries being sent in cleartext as this would be counter to what the
-client is trying to achieve. A recursive resolver MUST respond with a
-SERVFAIL to incoming cleartext queries requesting OPPORTUNISTIC or
-STRICT privacy to avoid further leaks of client's query.
+client is trying to achieve.
 
 Given that the client sent its query using an encrypted transport, the
 recursive resolver will try to honor the PRIVACY option. If it is NONE,
