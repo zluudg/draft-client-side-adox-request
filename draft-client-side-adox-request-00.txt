@@ -4,8 +4,8 @@
 
 DNSOP Working Group                                         L. Fernandez
 Internet-Draft                           The Swedish Internet Foundation
-Intended status: Standards Track                          4 October 2026
-Expires: 7 April 2027
+Intended status: Standards Track                         12 October 2026
+Expires: 15 April 2027
 
 
       Client-side Request for Encrypted Authoritative DNS Queries
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 April 2027.
+   This Internet-Draft will expire on 15 April 2027.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Fernandez                 Expires 7 April 2027                  [Page 1]
+Fernandez                 Expires 15 April 2027                 [Page 1]
 
 Internet-Draft          Client-side ADoX Request            October 2026
 
@@ -72,27 +72,26 @@ Table of Contents
    4.  The EDNS0 PRIVACY Option  . . . . . . . . . . . . . . . . . .   3
    5.  Privacy Values  . . . . . . . . . . . . . . . . . . . . . . .   4
      5.1.  Interpretations of Privacy Values in a query context  . .   4
-       5.1.1.  NONE  . . . . . . . . . . . . . . . . . . . . . . . .   5
+       5.1.1.  NONE  . . . . . . . . . . . . . . . . . . . . . . . .   4
        5.1.2.  OPPORTUNISTIC . . . . . . . . . . . . . . . . . . . .   5
        5.1.3.  STRICT  . . . . . . . . . . . . . . . . . . . . . . .   5
      5.2.  Interpretations of Privacy Values in a response
            context . . . . . . . . . . . . . . . . . . . . . . . . .   5
        5.2.1.  CLEARTEXT . . . . . . . . . . . . . . . . . . . . . .   5
        5.2.2.  ENCRYPTED . . . . . . . . . . . . . . . . . . . . . .   5
-       5.2.3.  CACHED TODO(Enough to say this?  Maybe we want to know
-               if it was validated or received of encr transport)  .   5
+       5.2.3.  CACHED  . . . . . . . . . . . . . . . . . . . . . . .   5
    6.  Protocol Description  . . . . . . . . . . . . . . . . . . . .   5
      6.1.  Setting a Response PRIVACY Value  . . . . . . . . . . . .   6
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
-   8.  Operational Considerations  . . . . . . . . . . . . . . . . .   6
-   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
-   10. Implementation Status . . . . . . . . . . . . . . . . . . . .   6
-   11. Acknowledgments** . . . . . . . . . . . . . . . . . . . . . .   7
-   12. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
-     12.1.  Normative References . . . . . . . . . . . . . . . . . .   7
-     12.2.  Informative References . . . . . . . . . . . . . . . . .   7
-   Appendix A.  Change History (to be removed before publication)  .   7
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   7
+   7.  Relation to QNAME minimisation  . . . . . . . . . . . . . . .   6
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   9.  Operational Considerations  . . . . . . . . . . . . . . . . .   6
+   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
+   11. Implementation Status . . . . . . . . . . . . . . . . . . . .   7
+   12. Acknowledgments** . . . . . . . . . . . . . . . . . . . . . .   7
+   13. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+     13.1.  Normative References . . . . . . . . . . . . . . . . . .   7
+     13.2.  Informative References . . . . . . . . . . . . . . . . .   7
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   8
 
 1.  Introduction TODO(refs)
 
@@ -106,15 +105,14 @@ Table of Contents
    encrypted transports during the resolution process.  Furthermore, the
    client should be informed of how the resolution was carried out, in
    case it would like to discard data that was not received over an
+   encrypted transport.
 
 
 
-Fernandez                 Expires 7 April 2027                  [Page 2]
+Fernandez                 Expires 15 April 2027                 [Page 2]
 
 Internet-Draft          Client-side ADoX Request            October 2026
 
-
-   encrypted transport.
 
    This document defines an EDNS0 [RFC6891] option that allows a client
    to signal a preference for encrypted authoritative DNS (ADoX).  By
@@ -130,9 +128,6 @@ Internet-Draft          Client-side ADoX Request            October 2026
    achieved for a particular query.
 
 2.  Prior Art
-
-   TODO(QNAME minimization, how much is okay to leak?  TLD?  None at
-   all? define a value that requests qname minimization?)
 
    *Note to the RFC Editor*: Please remove this entire section before
    publication.
@@ -154,22 +149,6 @@ Internet-Draft          Client-side ADoX Request            October 2026
 
    The EDNS0 PRIVACY option is structured as follows:
 
-
-
-
-
-
-
-
-
-
-
-
-Fernandez                 Expires 7 April 2027                  [Page 3]
-
-Internet-Draft          Client-side ADoX Request            October 2026
-
-
                                                  1   1   1   1   1   1
          0   1   2   3   4   5   6   7   8   9   0   1   2   3   4   5
        +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
@@ -177,10 +156,19 @@ Internet-Draft          Client-side ADoX Request            October 2026
        +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
    2:  |                           OPTION-LENGTH                       |
        +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-   3:  |           PRIVACY             |
-       +---+---+---+---+---+---+---+---+
+   3:  |           PRIVACY             |            VALIDATED          |
+       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
    Field definition details:
+
+
+
+
+
+Fernandez                 Expires 15 April 2027                 [Page 3]
+
+Internet-Draft          Client-side ADoX Request            October 2026
+
 
    OPTION-CODE: The EDNS0 option code for client-privacy-request,
    defined as TBD.
@@ -193,6 +181,14 @@ Internet-Draft          Client-side ADoX Request            October 2026
    of privacy.  For responses, this value encodes the level of privacy
    that the resolver was able to achieve.  Currently defined values are
    listed in Section 5.
+
+   VALIDATED: For queries, this field is unused and MUST be set to 0.
+   For responses, it SHOULD be set to 1 if the recursor succesfully
+   validated the certificates it encountered during the resolution
+   process.  Else, it should be set to 0.  Validation can be done via
+   mechanisms such as DANE [RFC6698] or the WebPKI.  The VALIDATED
+   option SHOULD only be set if the PRIVACY option is CACHED or
+   ENCRYPTED.
 
 5.  Privacy Values
 
@@ -216,20 +212,19 @@ Internet-Draft          Client-side ADoX Request            October 2026
 
 5.1.  Interpretations of Privacy Values in a query context
 
-
-
-
-
-
-Fernandez                 Expires 7 April 2027                  [Page 4]
-
-Internet-Draft          Client-side ADoX Request            October 2026
-
-
 5.1.1.  NONE
 
    Same effect as having to client signal at all.  No privacy requested
    by the client that is sending the query.
+
+
+
+
+
+Fernandez                 Expires 15 April 2027                 [Page 4]
+
+Internet-Draft          Client-side ADoX Request            October 2026
+
 
 5.1.2.  OPPORTUNISTIC
 
@@ -253,8 +248,7 @@ Internet-Draft          Client-side ADoX Request            October 2026
 
    The answer was fetched only over encrypted transports.
 
-5.2.3.  CACHED TODO(Enough to say this?  Maybe we want to know if it was
-        validated or received of encr transport)
+5.2.3.  CACHED
 
    The answer was fetched from the resolver's cache and no queries had
    to be sent out.
@@ -264,9 +258,7 @@ Internet-Draft          Client-side ADoX Request            October 2026
    A client adds the PRIVACY EDNS0 option to a recursive query before
    sending it.  A client SHOULD NOT add the PRIVACY option to recursive
    queries being sent in cleartext as this would be counter to what the
-   client is trying to achieve.  A recursive resolver MUST respond with
-   a SERVFAIL to incoming cleartext queries requesting OPPORTUNISTIC or
-   STRICT privacy to avoid further leaks of client's query.
+   client is trying to achieve.
 
    Given that the client sent its query using an encrypted transport,
    the recursive resolver will try to honor the PRIVACY option.  If it
@@ -274,19 +266,21 @@ Internet-Draft          Client-side ADoX Request            October 2026
    used to resolve the query and the recursor may resolve it in any way
    deemed suitable.  If the option is OPPORTUNISTIC, the recursor MUST
    attempt to send any iterative queries over an encrypted transport.
-
-
-
-Fernandez                 Expires 7 April 2027                  [Page 5]
-
-Internet-Draft          Client-side ADoX Request            October 2026
-
-
    However, the recursor is allowed to fall back to an unencrypted
    transport after a failed attempt.  If the option is STRICT the
    recursor MUST NOT perform such a fallback at any point during the
    resolution process.  Using contents from the cache is always okay as
    this does not leak any information about the client's query.
+
+
+
+
+
+
+Fernandez                 Expires 15 April 2027                 [Page 5]
+
+Internet-Draft          Client-side ADoX Request            October 2026
+
 
 6.1.  Setting a Response PRIVACY Value
 
@@ -300,20 +294,49 @@ Internet-Draft          Client-side ADoX Request            October 2026
    answer, it responds with a value of ENCRYPTED.  What transport cached
    data arrived over does not matter in this case.
 
-7.  Security Considerations
+7.  Relation to QNAME minimisation
+
+   QNAME minimisation [RFC9156] is another privacy-enhancement for
+   authoritative DNS that recursive resolvers can implement.  It should
+   be considered orthogonal to what is proposed in this draft.  That is,
+   the value that the recursor sets for the PRIVACY option SHOULD NOT be
+   affected in any way by whether the recursor employs QNAME
+   minimisation or not.  QNAME minimization does not give as good
+   privacy as encryption if there are more than two or three
+   delagations.  On the other hand, QNAME minimization avoids leaking
+   information to authoritative servers, which means there might still
+   be good reasons to use it.
+
+   To encourage the use of both and avoid complex interplay between the
+   two, QNAME minimization SHOULD NOT affect the PRIVACY option in a
+   recursor's response.
+
+8.  Security Considerations
 
    Enables/simplifies cache probing through the CACHED option.  Not a
    big deal, TTL can be used for that anyway.
 
-   TODO(Discussion of passive vs. active attacks.  A STRICT setting is
-   still vulnerable to active attacks, but the name STRICT might imply
-   that it isn't for some people.)
+   TODO(Discussion of passive vs. active attacks.  And the role of the
+   VALIDATED flag.)
 
-8.  Operational Considerations
-
-9.  IANA Considerations
+9.  Operational Considerations
 
    TODO
+
+10.  IANA Considerations
+
+   TODO
+
+
+
+
+
+
+
+Fernandez                 Expires 15 April 2027                 [Page 6]
+
+Internet-Draft          Client-side ADoX Request            October 2026
+
 
    +-------+--------------------------+----------+----------------------+
    | Value | Name                     | Status   | Reference            |
@@ -324,19 +347,10 @@ Internet-Draft          Client-side ADoX Request            October 2026
    *Note to the RFC Editor*: In this section, please replace occurrences
    of "(This document)" with a proper reference.
 
-10.  Implementation Status
+11.  Implementation Status
 
    *Note to the RFC Editor*: Please remove this entire section before
    publication.
-
-
-
-
-
-Fernandez                 Expires 7 April 2027                  [Page 6]
-
-Internet-Draft          Client-side ADoX Request            October 2026
-
 
    The TDNS Framework of experimental DNS servers developed and
    maintained by the Swedish Internet Foundation implements this draft
@@ -344,16 +358,26 @@ Internet-Draft          Client-side ADoX Request            October 2026
    tdns)).  TDNS has support for both the authoritative nameserver and
    recursive nameserver parts of the draft.
 
-11.  Acknowledgments**
+12.  Acknowledgments**
 
-12.  References
+13.  References
 
-12.1.  Normative References
+13.1.  Normative References
+
+   [RFC6698]  Hoffman, P. and J. Schlyter, "The DNS-Based Authentication
+              of Named Entities (DANE) Transport Layer Security (TLS)
+              Protocol: TLSA", RFC 6698, DOI 10.17487/RFC6698, August
+              2012, <https://www.rfc-editor.org/rfc/rfc6698>.
 
    [RFC6891]  Damas, J., Graff, M., and P. Vixie, "Extension Mechanisms
               for DNS (EDNS(0))", STD 75, RFC 6891,
               DOI 10.17487/RFC6891, April 2013,
               <https://www.rfc-editor.org/rfc/rfc6891>.
+
+   [RFC9156]  Bortzmeyer, S., Dolmans, R., and P. Hoffman, "DNS Query
+              Name Minimisation to Improve Privacy", RFC 9156,
+              DOI 10.17487/RFC9156, November 2021,
+              <https://www.rfc-editor.org/rfc/rfc9156>.
 
    [RFC9539]  Gillmor, D. K., Ed., Salazar, J., Ed., and P. Hoffman,
               Ed., "Unilateral Opportunistic Deployment of Encrypted
@@ -361,7 +385,14 @@ Internet-Draft          Client-side ADoX Request            October 2026
               DOI 10.17487/RFC9539, February 2024,
               <https://www.rfc-editor.org/rfc/rfc9539>.
 
-12.2.  Informative References
+13.2.  Informative References
+
+
+
+Fernandez                 Expires 15 April 2027                 [Page 7]
+
+Internet-Draft          Client-side ADoX Request            October 2026
+
 
    [I-D.johani-dnsop-transport-signaling]
               Stenstam, J., Fernandez, L., Bergström, E., Homburg, P.,
@@ -379,20 +410,7 @@ Internet-Draft          Client-side ADoX Request            October 2026
               <https://datatracker.ietf.org/doc/html/draft-wesplaap-
               deleg-transport-00>.
 
-Appendix A.  Change History (to be removed before publication)
-
-      Initial public draft
-
 Author's Address
-
-
-
-
-
-Fernandez                 Expires 7 April 2027                  [Page 7]
-
-Internet-Draft          Client-side ADoX Request            October 2026
-
 
    Leon Fernandez
    The Swedish Internet Foundation
@@ -427,22 +445,4 @@ Internet-Draft          Client-side ADoX Request            October 2026
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Fernandez                 Expires 7 April 2027                  [Page 8]
+Fernandez                 Expires 15 April 2027                 [Page 8]
