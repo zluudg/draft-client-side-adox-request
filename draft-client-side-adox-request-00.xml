@@ -88,8 +88,6 @@ a particular query.</t>
 
 </section>
 <section anchor="prior-art"><name>Prior Art</name>
-<t>TODO(QNAME minimization, how much is okay to leak? TLD? None at all?
-define a value that requests qname minimization?)</t>
 
 <t><strong>Note to the RFC Editor</strong>: Please remove this entire section before publication.</t>
 
@@ -120,8 +118,8 @@ define a value that requests qname minimization?)</t>
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
  2:  |                           OPTION-LENGTH                       |
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- 3:  |           PRIVACY             |
-     +---+---+---+---+---+---+---+---+
+ 3:  |           PRIVACY             |            VALIDATED          |
+     +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ]]></artwork></figure>
 
 <t>Field definition details:</t>
@@ -137,6 +135,14 @@ define a value that requests qname minimization?)</t>
     privacy. For responses, this value encodes the level of privacy
     that the resolver was able to achieve. Currently defined values are
     listed in <xref target="privacy-values"/>.</t>
+
+<t>VALIDATED: For queries, this field is unused and MUST be set to 0.
+    For responses, it SHOULD be set to 1 if the recursor succesfully
+    validated the certificates it encountered during the resolution
+    process. Else, it should be set to 0. Validation can be done via
+    mechanisms such as DANE <xref target="RFC6698"/> or the WebPKI. The VALIDATED
+    option SHOULD only be set if the PRIVACY option is CACHED or
+    ENCRYPTED.</t>
 
 </section>
 <section anchor="privacy-values"><name>Privacy Values</name>
@@ -195,7 +201,7 @@ unencrypted transports is not acceptable.</t>
 <t>The answer was fetched only over encrypted transports.</t>
 
 </section>
-<section anchor="cached-todoenough-to-say-this-maybe-we-want-to-know-if-it-was-validated-or-received-of-encr-transport"><name>CACHED TODO(Enough to say this? Maybe we want to know if it was validated or received of encr transport)</name>
+<section anchor="cached"><name>CACHED</name>
 <t>The answer was fetched from the resolver's cache and no queries had to
 be sent out.</t>
 
@@ -206,9 +212,7 @@ be sent out.</t>
 <t>A client adds the PRIVACY EDNS0 option to a recursive query before
 sending it. A client SHOULD NOT add the PRIVACY option to recursive
 queries being sent in cleartext as this would be counter to what the
-client is trying to achieve. A recursive resolver MUST respond with a
-SERVFAIL to incoming cleartext queries requesting OPPORTUNISTIC or
-STRICT privacy to avoid further leaks of client's query.</t>
+client is trying to achieve.</t>
 
 <t>Given that the client sent its query using an encrypted transport, the
 recursive resolver will try to honor the PRIVACY option. If it is NONE,
@@ -235,16 +239,32 @@ over does not matter in this case.</t>
 
 </section>
 </section>
+<section anchor="relation-to-qname-minimisation"><name>Relation to QNAME minimisation</name>
+<t>QNAME minimisation <xref target="RFC9156"/> is another privacy-enhancement for
+authoritative DNS that recursive resolvers can implement. It should be
+considered orthogonal to what is proposed in this draft. That is, the
+value that the recursor sets for the PRIVACY option SHOULD NOT be
+affected in any way by whether the recursor employs QNAME minimisation
+or not. QNAME minimization does not give as good privacy as encryption
+if there are more than two or three delagations. On the other hand,
+QNAME minimization avoids leaking information to authoritative servers,
+which means there might still be good reasons to use it.</t>
+
+<t>To encourage the use of both and avoid complex interplay between the
+two, QNAME minimization SHOULD NOT affect the PRIVACY option in a
+recursor's response.</t>
+
+</section>
 <section anchor="security-considerations"><name>Security Considerations</name>
 <t>Enables/simplifies cache probing through the CACHED option. Not a big
 deal, TTL can be used for that anyway.</t>
 
-<t>TODO(Discussion of passive vs. active attacks. A STRICT setting is still
-vulnerable to active attacks, but the name STRICT might imply that it
-isn't for some people.)</t>
+<t>TODO(Discussion of passive vs. active attacks. And the role of the
+VALIDATED flag.)</t>
 
 </section>
 <section anchor="operational-considerations"><name>Operational Considerations</name>
+<t>TODO</t>
 
 </section>
 <section anchor="iana-considerations"><name>IANA Considerations</name>
@@ -319,6 +339,35 @@ recursive nameserver parts of the draft.</t>
   </front>
   <seriesInfo name="RFC" value="9539"/>
   <seriesInfo name="DOI" value="10.17487/RFC9539"/>
+</reference>
+
+<reference anchor="RFC6698">
+  <front>
+    <title>The DNS-Based Authentication of Named Entities (DANE) Transport Layer Security (TLS) Protocol: TLSA</title>
+    <author fullname="P. Hoffman" initials="P." surname="Hoffman"/>
+    <author fullname="J. Schlyter" initials="J." surname="Schlyter"/>
+    <date month="August" year="2012"/>
+    <abstract>
+      <t>Encrypted communication on the Internet often uses Transport Layer Security (TLS), which depends on third parties to certify the keys used. This document improves on that situation by enabling the administrators of domain names to specify the keys used in that domain's TLS servers. This requires matching improvements in TLS client software, but no change in TLS server software. [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="6698"/>
+  <seriesInfo name="DOI" value="10.17487/RFC6698"/>
+</reference>
+
+<reference anchor="RFC9156">
+  <front>
+    <title>DNS Query Name Minimisation to Improve Privacy</title>
+    <author fullname="S. Bortzmeyer" initials="S." surname="Bortzmeyer"/>
+    <author fullname="R. Dolmans" initials="R." surname="Dolmans"/>
+    <author fullname="P. Hoffman" initials="P." surname="Hoffman"/>
+    <date month="November" year="2021"/>
+    <abstract>
+      <t>This document describes a technique called "QNAME minimisation" to improve DNS privacy, where the DNS resolver no longer always sends the full original QNAME and original QTYPE to the upstream name server. This document obsoletes RFC 7816.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="9156"/>
+  <seriesInfo name="DOI" value="10.17487/RFC9156"/>
 </reference>
 
 
@@ -434,96 +483,92 @@ recursive nameserver parts of the draft.</t>
 </references>
 
 
-<?line 223?>
-
-<section anchor="change-history-to-be-removed-before-publication"><name>Change History (to be removed before publication)</name>
-
-<ul empty="true"><li>
-  <t>Initial public draft</t>
-</li></ul>
-
-</section>
-
 
   </back>
 
 <!-- ##markdown-source:
-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
+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
+v0NdJhj6xQPfj5uJ/wKgWw03DCYAAA==
 
 -->
 
