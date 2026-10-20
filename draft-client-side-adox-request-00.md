@@ -67,8 +67,6 @@ indication to the client about what level of privacy was achieved for
 a particular query.
 
 # Prior Art
-TODO(QNAME minimization, how much is okay to leak? TLD? None at all?
-define a value that requests qname minimization?)
 
 **Note to the RFC Editor**: Please remove this entire section before publication.
 
@@ -97,8 +95,8 @@ The EDNS0 PRIVACY option is structured as follows:
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
  2:  |                           OPTION-LENGTH                       |
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- 3:  |           PRIVACY             |
-     +---+---+---+---+---+---+---+---+
+ 3:  |           PRIVACY             |            VALIDATED          |
+     +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ~~~
 
 Field definition details:
@@ -114,6 +112,14 @@ PRIVACY: For queries, this value encodes the client's desired level of
     privacy. For responses, this value encodes the level of privacy
     that the resolver was able to achieve. Currently defined values are
     listed in {{privacy-values}}.
+
+VALIDATED: For queries, this field is unused and MUST be set to 0.
+    For responses, it SHOULD be set to 1 if the recursor succesfully
+    validated the certificates it encountered during the resolution
+    process. Else, it should be set to 0. Validation can be done via
+    mechanisms such as DANE {{!RFC6698}} or the WebPKI. The VALIDATED
+    option SHOULD only be set if the PRIVACY option is CACHED or
+    ENCRYPTED.
 
 # Privacy Values {#privacy-values}
 
@@ -150,7 +156,7 @@ The answer was fetched over an unencrypted connection.
 ### ENCRYPTED
 The answer was fetched only over encrypted transports.
 
-### CACHED TODO(Enough to say this? Maybe we want to know if it was validated or received of encr transport)
+### CACHED
 The answer was fetched from the resolver's cache and no queries had to
 be sent out.
 
@@ -183,15 +189,30 @@ encrypted transports and data from its cache to retrive the answer, it
 responds with a value of ENCRYPTED. What transport cached data arrived
 over does not matter in this case.
 
+# Relation to QNAME minimisation
+QNAME minimisation {{!RFC9156}} is another privacy-enhancement for
+authoritative DNS that recursive resolvers can implement. It should be
+considered orthogonal to what is proposed in this draft. That is, the
+value that the recursor sets for the PRIVACY option SHOULD NOT be
+affected in any way by whether the recursor employs QNAME minimisation
+or not. QNAME minimization does not give as good privacy as encryption
+if there are more than two or three delagations. On the other hand,
+QNAME minimization avoids leaking information to authoritative servers,
+which means there might still be good reasons to use it.
+
+To encourage the use of both and avoid complex interplay between the
+two, QNAME minimization SHOULD NOT affect the PRIVACY option in a
+recursor's response.
+
 # Security Considerations
 Enables/simplifies cache probing through the CACHED option. Not a big
 deal, TTL can be used for that anyway.
 
-TODO(Discussion of passive vs. active attacks. A STRICT setting is still
-vulnerable to active attacks, but the name STRICT might imply that it
-isn't for some people.)
+TODO(Discussion of passive vs. active attacks. And the role of the
+VALIDATED flag.)
 
 # Operational Considerations
+TODO
 
 # IANA Considerations
 
@@ -218,7 +239,7 @@ recursive nameserver parts of the draft.
 
 # Acknowledgments**
 
---- back
+--- TODO
 
 # Change History (to be removed before publication)
 
