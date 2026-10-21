@@ -1,3 +1,8 @@
+# NOTICE
+Work on ADoX-signalling for client has moved to this repo:
+<https://github.com/zluudg/draft-fernandez-dnsop-client-side-adox-signal>
+
+
 # draft-client-side-adox-request
 
 
